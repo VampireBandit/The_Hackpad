@@ -1,76 +1,51 @@
 import board
-from kmk.kmk_keyboard import KMKKeyboard
+import digitalio
+import rotaryio
+import usb_hid
+from kmk.kmktime import get_ticks_ms
 from kmk.keys import KC
-from kmk.scanners import DiodeOrientation
+from kmk.macros import simple_key_sequence
 from kmk.modules.encoder import EncoderHandler
-from kmk.extensions.oled import OLED
-from kmk.extensions.media_keys import MediaKeys
+from kmk.modules.layers import Layers
+from kmk.modules.led import RGBMatrix
+from kmk.modules.mouse_keys import MouseKeys
+from kmk.modules.sequences import send_sequence
+from kmk.hid import ConsumerControlCode, MouseKeySubAction
+from kmk.kmkpy import KMKKeyboard
 
 keyboard = KMKKeyboard()
 
-# =========================
-# MATRIX CONFIGURATION
-# =========================
+layers = Layers()
+keyboard.modules.append(layers)
 
-keyboard.col_pins = (
-    board.GP0,   # Column 0
-    board.GP1,   # Column 1
-    board.GP2,   # Column 2
-    board.GP3,   # Column 3
-)
-
-keyboard.row_pins = (
-    board.GP27,  # Row 1
-    board.GP28,  # Row 2
-    board.GP29,  # Row 3
-)
-
-# Reversed diodes
-keyboard.diode_orientation = DiodeOrientation.ROW2COL
-
-
-# =========================
-# ENCODER CONFIGURATION
-# =========================
-
-encoder_handler = EncoderHandler()
-keyboard.modules.append(encoder_handler)
-
-encoder_handler.pins = (
-    (board.GP4, board.GP6, None),  # (A, B, Switch=None)
-)
-
-encoder_handler.map = [
-    ((KC.VOLU, KC.VOLD),),
+# Assume 3x4 matrix: rows GP2, GP3, GP4; cols GP5, GP6, GP7, GP8
+keyboard.matrix = [
+    [KC.N1, KC.N2, KC.N3, KC.N4],
+    [KC.N5, KC.N6, KC.N7, KC.N8],
+    [KC.N9, KC.N0, KC.BS, KC.ENT],
 ]
+# Cols to rows: cols = [board.GP5, board.GP6, board.GP7, board.GP8]
+# rows = [board.GP2, board.GP3, board.GP4]
+keyboard.col_pins = (5,6,7,8)
+keyboard.row_pins = (2,3,4)
+keyboard.matrix_type = "ROWS"
 
+# Encoder: assume A=GP1, B=GP0, button=GP9
+enc_handler = EncoderHandler()
+enc_handler.pins = ((0, 1, 9),)
+enc_handler.on_clockwise_do(lambda: keyboard.consumer_control.send(ConsumerControlCode.VOLUME_INCREMENT))
+enc_handler.on_counter_clockwise_do(lambda: keyboard.consumer_control.send(ConsumerControlCode.VOLUME_DECREMENT))
+enc_handler.on_click_do(lambda: keyboard.consumer_control.send(ConsumerControlCode.MUTE))
+keyboard.modules.append(enc_handler)
 
-# =========================
-# OLED CONFIGURATION
-# =========================
-
-oled = OLED(
-    width=128,
-    height=32,
-    sda=board.GP7,
-    scl=board.GP26,
-)
-
-keyboard.extensions.append(oled)
-keyboard.extensions.append(MediaKeys())
-
-
-# =========================
-# KEYMAP (3x4)
-# =========================
-
-keyboard.keymap = [
-    [
-        KC.ESC,    KC.N1,     KC.N2,     KC.N3,
-        KC.TAB,    KC.Q,      KC.W,      KC.E,
-        KC.LSFT,   KC.A,      KC.S,      KC.D,
-    ]
-]
+# Optional RGB under keys, assume D4-D11 or something, but for simplicity skip or configure if pins match
+# rgb_matrix = RGBMatrix(
+#     led_pin=board.NEOPIXEL? or whatever,
+#     num_leds=12,  # 12 keys
+#     val_range=(0, 50),
+#     ...
+# )
+# keyboard.modules.append(rgb_matrix)
 
 if __name__ == '__main__':
     keyboard.go()

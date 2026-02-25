@@ -55,7 +55,7 @@ This is my first time making a full on electronic project. Didn't know a single 
 
 ## Firmware
 
-Configured using KMK firmware.
+Configured using KMK firmware. Can be used other firmwares though!
 
 ---
 

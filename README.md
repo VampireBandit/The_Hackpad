@@ -50,6 +50,8 @@ This is my first time making a full on electronic project. Didn't know a single 
 - 4x SK6812 MINI-E LEDs
 - 4x M3x16mm screws
 - 4x M3x5mx4mm heatset inserts
+
+
 check BOM.csv for more info.
 ---
 

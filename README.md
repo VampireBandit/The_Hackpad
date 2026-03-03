@@ -36,6 +36,11 @@ A compact, programmable macropad built for custom key mappings, macros, and shor
 ### Overall
 ![Overall](Images/Overall.png)
 
+### USB Hole
+![USB_notch_1](Images/BAck.png)
+
+![USB_notch_2](Images/case.png)
+
 ---
 
 This is my first time making a full on electronic project. Didn't know a single thing about PCB's,CAD or firmwares. This was pretty fun to make and Thanks to HackClub for this oppourtunity.
